@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stormer1999/go-crud/initializers"
 	"github.com/stormer1999/go-crud/models"
@@ -11,9 +13,8 @@ var body struct {
 	Body  string `json:"body"`
 }
 
-func PostsCreate(c *gin.Context) {
-	// get data
-
+func AddNewPost(c *gin.Context) {
+	// get data from body
 	c.Bind(&body)
 
 	// create a post
@@ -21,34 +22,45 @@ func PostsCreate(c *gin.Context) {
 	result := initializers.DB.Create(&post)
 
 	if result.Error != nil {
-		c.Status(400)
+		c.JSON(400, gin.H{
+			"error": result.Error,
+		})
 		return
 	}
 
-	c.JSON(200, gin.H{
-		"post": post,
-	})
+	// return success response with created data
+	c.JSON(200, post)
 }
 
-func PostsIndex(c *gin.Context) {
-	var posts []models.Post
+func GetPosts(c *gin.Context) {
+	posts := []models.Post{}
 	initializers.DB.Find(&posts)
 
-	c.JSON(200, gin.H{
-		"posts": posts,
-	})
+	// return query data
+	c.JSON(200, posts)
 }
 
-func PostsShow(c *gin.Context) {
+func GetPostById(c *gin.Context) {
+	// get id from param
 	id := c.Param("id")
 	post := models.Post{}
-	initializers.DB.First(&post, id)
-	c.JSON(200, gin.H{
-		"post": post,
-	})
+	result := initializers.DB.First(&post, id)
+
+	// id not found
+	if result.Error != nil {
+		log.Fatal(result.Error)
+		c.JSON(400, gin.H{
+			"error": result.Error,
+		})
+		return
+	}
+
+	// return query data
+	c.JSON(200, post)
 }
 
-func PostsUpdate(c *gin.Context) {
+func UpdatePost(c *gin.Context) {
+	// get id from param
 	id := c.Param("id")
 	post := models.Post{}
 	initializers.DB.First(&post, id)
@@ -61,17 +73,16 @@ func PostsUpdate(c *gin.Context) {
 			Body:  body.Body,
 		})
 
-	c.JSON(200, gin.H{
-		"post": post,
-	})
+	// return updated data
+	c.JSON(200, post)
 }
 
-func PostsDelete(c *gin.Context) {
+func DeletePost(c *gin.Context) {
 	id := c.Param("id")
 	post := models.Post{}
 	initializers.DB.First(&post, id)
 	initializers.DB.Delete(&post)
-	c.JSON(200, gin.H{
-		"post": post,
-	})
+
+	// return deleted data
+	c.JSON(200, post)
 }

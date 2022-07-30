@@ -14,11 +14,11 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	r.GET("/posts", controllers.PostsIndex)
-	r.GET("/posts/:id", controllers.PostsShow)
-	r.POST("/posts", controllers.PostsCreate)
-	r.PUT("/posts/:id", controllers.PostsUpdate)
-	r.DELETE("/posts/:id", controllers.PostsDelete)
+	r.GET("/posts", controllers.GetPosts)
+	r.GET("/posts/:id", controllers.GetPostById)
+	r.POST("/posts", controllers.AddNewPost)
+	r.PUT("/posts/:id", controllers.UpdatePost)
+	r.DELETE("/posts/:id", controllers.DeletePost)
 
 	r.Run() // listen and serve on
 }
